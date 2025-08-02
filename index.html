@@ -1,58 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bondi Brass Timeline (Responsive)</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<style>
-  body { margin: 0; font-family: Arial, sans-serif; background: #f8f9fa; display: flex; flex-direction: column; height: 100vh; }
-  header { background: #007bff; color: white; padding: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  header h1 { margin: 0; font-size: 1.2em; }
-  #dropzone { border: 2px dashed white; padding: 8px 12px; background: rgba(255,255,255,0.1); color: white; cursor: pointer; border-radius: 5px; margin-top: 8px; font-size: 0.9em; }
-  #toggleAll { padding: 8px 12px; background: white; color: #007bff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em; margin-left: 8px; }
-  .table-container { flex: 1; overflow-y: auto; }
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  td { vertical-align: top; padding: 8px; text-align: center; position: relative; word-wrap: break-word; }
-  td.date-col { width: 100px; font-weight: bold; color:orange; font-size: 1.5em; }
-  td.dot-col { width: 25px; }
-  td.card-col { width: auto; }
-  .dot-container { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
-  .line { position: absolute; top: 0; bottom: 0; width: 4px; background: #007bff; z-index: 0; }
-  .dot { width: 20px; height: 20px; background: #007bff; border-radius: 50%; position: relative; z-index: 1; }
-  .card { background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; padding: 8px; text-align: left; }
-  .card h3 { margin: 0; font-size: 1.25em; }
-  .card p { margin: 2px 0; font-size: 0.9em; }
-  .card img { width: 100px; height: 70px; object-fit: cover; margin-right: 8px; background: #ddd; border-radius: 4px; }
-  .card-content { display: flex; align-items: center; flex-wrap: wrap; }
-  .card-text { flex: 1; min-width: 150px; }
-  .toggle-button { font-size: 16px; cursor: pointer; margin-left: 6px; color: #007bff; }
-  .card-expanded img { width: 100%; height: auto; max-height: 250px; object-fit: contain; margin-top: 6px; border-radius: 4px; }
-  footer { background: #ddd; padding: 8px; text-align: center; font-size: 0.8em; }
-  .card a i.fa-link { margin-right: 6px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bondi Brass Archive</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f8f9fa; display: flex; flex-direction: column; height: 100vh; }
+    header { background: #007bff; color: white; padding: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    header h1 { margin: 0; font-size: 1.2em; flex-grow: 1; }
+    .header-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 8px 12px; background: white; color: #007bff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em; }
+    .table-container { flex: 1; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    td { vertical-align: top; padding: 8px; text-align: center; position: relative; word-wrap: break-word; }
+    td.date-col { width: 100px; font-weight: bold; color: orange; font-size: 1.5em; }
+    td.dot-col { width: 25px; }
+    td.card-col { width: auto; }
+    .dot-container { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+    .line { position: absolute; top: 0; bottom: 0; width: 4px; background: #007bff; z-index: 0; }
+    .dot { width: 20px; height: 20px; background: #007bff; border-radius: 50%; position: relative; z-index: 1; }
+    .card { background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; padding: 8px; text-align: left; margin: 8px; }
+    .card h3 { margin: 0 0 5px; font-size: 1.25em; }
+    .card p { margin: 2px 0; font-size: 0.9em; }
+    .card img { width: 100px; height: 70px; object-fit: cover; margin-right: 8px; background: #ddd; border-radius: 4px; }
+    .card-content { display: flex; align-items: center; flex-wrap: wrap; }
+    .card-text { flex: 1; min-width: 150px; }
+    .toggle-button { font-size: 16px; cursor: pointer; margin-left: 6px; color: #007bff; }
+    .card-expanded img { width: 100%; height: auto; max-height: 250px; object-fit: contain; margin-top: 6px; border-radius: 4px; }
+    footer { background: #ddd; padding: 8px; text-align: center; font-size: 0.8em; }
+    .card a i.fa-link { margin-right: 6px; }
+  </style>
 </head>
 <body>
 
 <header>
-  <h1>Bondi Brass Timeline  1901-2025</h1>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+  <h1>Bondi Brass Archive</h1>
+  <div class="header-buttons">
     <button id="toggleAll">Expand All</button>
-    <a href="./data/sample.xlsx" download style="padding: 8px 12px; background: white; color: #007bff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em; text-decoration: none; text-align: center;">Download Sample XLSX</a>
-    <div id="dropzone">Drag & Drop XLSX Here</div>
+    <button onclick="openSheet()">Open Sheet</button>
+    <button id="toggleView">View: Timeline</button>
   </div>
 </header>
 
 <div class="table-container">
   <table id="timeline"></table>
 </div>
-<footer><strong>Bondi Brass</strong> – Drag your XLSX file to view and generate your historical timeline easily.</footer>
+
+<footer><strong>Bondi Brass</strong> – Data from Google Sheets.</footer>
+
 <script>
-const dropzone = document.getElementById('dropzone');
 const timeline = document.getElementById('timeline');
 const toggleAllBtn = document.getElementById('toggleAll');
+const toggleViewBtn = document.getElementById('toggleView');
 let expandedState = false;
+let currentView = 'timeline';
+
+const SHEET_BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQohPTVtQqqIEa7mFjQh4R7MN_Yh2oR3uuJxRuPYpI54m23ma9q2Y3dpm06lPmcCB3387AwmWbJ7LGc/pub?single=true&output=csv";
+const GIDS = {
+  timeline: "174361176",
+  alumni: "1983200961"
+};
 
 toggleAllBtn.addEventListener('click', () => {
   expandedState = !expandedState;
@@ -65,120 +73,137 @@ toggleAllBtn.addEventListener('click', () => {
   toggleAllBtn.textContent = expandedState ? 'Collapse All' : 'Expand All';
 });
 
-['dragover', 'dragenter'].forEach(eventName => {
-  dropzone.addEventListener(eventName, e => {
-    e.preventDefault();
-    dropzone.style.background = '#e9ecef';
+toggleViewBtn.addEventListener('click', () => {
+  currentView = currentView === 'timeline' ? 'alumni' : 'timeline';
+  toggleViewBtn.textContent = `View: ${currentView.charAt(0).toUpperCase() + currentView.slice(1)}`;
+  loadCSVData(buildSheetURL(GIDS[currentView])).then(render);
+});
+
+function openSheet() {
+  window.open("https://docs.google.com/spreadsheets/d/18KQ-p9nwqmKol1gtwda6fYkOLyEwXffsMAjFTKP-CCQ/edit#gid=0", "_blank");
+}
+
+function buildSheetURL(gid) {
+  return SHEET_BASE.replace("output=csv", `gid=${gid}&single=true&output=csv`);
+}
+
+async function loadCSVData(url) {
+  const res = await fetch(url);
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+function parseCSV(text) {
+  const rows = text.trim().split('\n').map(row => row.split(','));
+  const headers = rows[0];
+  return rows.slice(1).map(row => {
+    const obj = {};
+    row.forEach((val, i) => obj[headers[i]] = val);
+    return obj;
   });
-});
-['dragleave', 'drop'].forEach(eventName => {
-  dropzone.addEventListener(eventName, e => {
-    e.preventDefault();
-    dropzone.style.background = 'rgba(255,255,255,0.1)';
+}
+
+function render(data) {
+  timeline.innerHTML = '';
+  if (currentView === 'timeline') renderTimeline(data);
+  else renderAlumni(data);
+}
+
+function renderTimeline(data) {
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+
+    const dateTd = document.createElement('td');
+    dateTd.className = 'date-col';
+    dateTd.textContent = row.Date || '';
+
+    const dotTd = document.createElement('td');
+    dotTd.className = 'dot-col';
+    const dotContainer = document.createElement('div');
+    dotContainer.className = 'dot-container';
+    const line = document.createElement('div');
+    line.className = 'line';
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dotContainer.appendChild(line);
+    dotContainer.appendChild(dot);
+    dotTd.appendChild(dotContainer);
+
+    const cardTd = document.createElement('td');
+    cardTd.className = 'card-col';
+    const card = document.createElement('div');
+    card.className = 'card';
+    const cardContent = document.createElement('div');
+    cardContent.className = 'card-content';
+    const img = document.createElement('img');
+    img.src = row.Img && row.Img.trim() !== '' 
+      ? row.Img 
+      : 'https://upload.wikimedia.org/wikipedia/commons/2/20/Fingerprint_picture.svg';
+
+    const text = document.createElement('div');
+    text.className = 'card-text';
+    const toggle = document.createElement('i');
+    toggle.className = 'fas fa-chevron-down toggle-button';
+    const expanded = document.createElement('div');
+    expanded.className = 'card-expanded';
+    expanded.style.display = 'none';
+
+    if (row.Img && row.Img.trim() !== '') {
+      const expandedImg = document.createElement('img');
+      expandedImg.src = row.Img;
+      expanded.appendChild(expandedImg);
+    }
+
+    toggle.addEventListener('click', () => {
+      expanded.style.display = expanded.style.display === 'none' ? 'block' : 'none';
+      toggle.className = expanded.style.display === 'none' 
+        ? 'fas fa-chevron-down toggle-button' 
+        : 'fas fa-chevron-up toggle-button';
+    });
+
+    let urlLine = '';
+    if (row.URL && row.URL.trim() !== '') {
+      urlLine = `<p><a href="${row.URL}" target="_blank" style="color:#007bff;text-decoration:none;"><i class="fas fa-link"></i> Open Link</a></p>`;
+    }
+
+    text.innerHTML = `<h3>${row.EventTitle || 'Untitled Event'}</h3><p>${row.Entity || ''}</p>${urlLine}<p>${row.Description || ''}</p>`;
+    cardContent.appendChild(img);
+    cardContent.appendChild(text);
+    cardContent.appendChild(toggle);
+    card.appendChild(cardContent);
+    card.appendChild(expanded);
+    cardTd.appendChild(card);
+
+    tr.appendChild(dateTd);
+    tr.appendChild(dotTd);
+    tr.appendChild(cardTd);
+    timeline.appendChild(tr);
   });
-});
+}
 
-dropzone.addEventListener('drop', e => {
-  const file = e.dataTransfer.files[0];
-  if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-      timeline.innerHTML = '';
+function renderAlumni(data) {
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 3;
 
-      json.forEach((row, index) => {
-        const tr = document.createElement('tr');
+    const card = document.createElement('div');
+    card.className = 'card';
+    const title = row.Name || 'Unnamed';
+    const year = row.Year || '';
+    const summary = row.Summary || '';
+    const link = row.URL && row.URL.trim() !== '' ? `<p><a href="${row.URL}" target="_blank"><i class="fas fa-link"></i> View</a></p>` : '';
 
-        const dateTd = document.createElement('td');
-        dateTd.className = 'date-col';
-        dateTd.textContent = row.Date || '';
+    card.innerHTML = `<h3>${title} (${year})</h3><p>${summary}</p>${link}`;
+    td.appendChild(card);
+    tr.appendChild(td);
+    timeline.appendChild(tr);
+  });
+}
 
-        const dotTd = document.createElement('td');
-        dotTd.className = 'dot-col';
-        const dotContainer = document.createElement('div');
-        dotContainer.className = 'dot-container';
-
-        const line = document.createElement('div');
-        line.className = 'line';
-        dotContainer.appendChild(line);
-
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dotContainer.appendChild(dot);
-
-        dotTd.appendChild(dotContainer);
-
-        const cardTd = document.createElement('td');
-        cardTd.className = 'card-col';
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const cardContent = document.createElement('div');
-        cardContent.className = 'card-content';
-
-        const img = document.createElement('img');
-        img.src = row.Img && row.Img.trim() !== '' 
-          ? row.Img 
-          : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Fingerprint_picture.svg/2560px-Fingerprint_picture.svg.png';
-
-        const text = document.createElement('div');
-        text.className = 'card-text';
-
-        let urlLine = '';
-        if (row.URL && row.URL.trim() !== '') {
-          urlLine = `<p><a href="${row.URL}" target="_blank" style="color:#007bff;text-decoration:none;"><i class="fas fa-link"></i> Open Link</a></p>`;
-        }
-
-        text.innerHTML = `<h3>${row.EventTitle || 'Untitled Event'}</h3><p>${row.Entity || ''}</p>${urlLine}<p>${row.Description || ''}</p>`;
-
-        const toggle = document.createElement('i');
-        toggle.className = 'fas fa-chevron-down toggle-button';
-
-        const expanded = document.createElement('div');
-        expanded.className = 'card-expanded';
-        expanded.style.display = 'none';
-
-        if (row.Img && row.Img.trim() !== '') {
-          const expandedImg = document.createElement('img');
-          expandedImg.src = row.Img;
-          expanded.appendChild(expandedImg);
-        }
-
-        toggle.addEventListener('click', () => {
-          if (expanded.style.display === 'none') {
-            expanded.style.display = 'block';
-            toggle.className = 'fas fa-chevron-up toggle-button';
-          } else {
-            expanded.style.display = 'none';
-            toggle.className = 'fas fa-chevron-down toggle-button';
-          }
-        });
-
-        cardContent.appendChild(img);
-        cardContent.appendChild(text);
-        cardContent.appendChild(toggle);
-
-        card.appendChild(cardContent);
-        card.appendChild(expanded);
-
-        cardTd.appendChild(card);
-
-        tr.appendChild(dateTd);
-        tr.appendChild(dotTd);
-        tr.appendChild(cardTd);
-
-        timeline.appendChild(tr);
-      });
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    alert('Please drop a valid XLSX or XLS file.');
-  }
-});
+loadCSVData(buildSheetURL(GIDS.timeline)).then(render);
 </script>
+
 </body>
 </html>
+
