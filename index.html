@@ -138,7 +138,7 @@ function renderTimeline(data) {
     const img = document.createElement('img');
     img.src = row.Img && row.Img.trim() !== '' 
       ? row.Img 
-      : 'https://upload.wikimedia.org/wikipedia/commons/2/20/Fingerprint_picture.svg';
+      : '';
 
     const text = document.createElement('div');
     text.className = 'card-text';
@@ -206,4 +206,3 @@ loadCSVData(buildSheetURL(GIDS.timeline)).then(render);
 
 </body>
 </html>
-
