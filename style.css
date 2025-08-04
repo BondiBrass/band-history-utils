@@ -8,7 +8,7 @@ button { padding: 8px 12px; background: white; color: #007bff; border: none; bor
 
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 td { vertical-align: top; padding: 8px; text-align: center; position: relative; word-wrap: break-word; }
-td.date-col { width: 50px; font-weight: bold; color: orange; font-size: 1.4em; }
+td.date-col { width: 50px; font-weight: bold; color: orange; font-size: 1.25em; }
 td.dot-col { width: 20px; }
 td.card-col { width: auto; }
 
