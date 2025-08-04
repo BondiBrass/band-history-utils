@@ -40,7 +40,7 @@ toggleAllBtn.addEventListener('click', () => {
 
 toggleViewBtn.addEventListener('click', () => {
   currentView = currentView === 'timeline' ? 'alumni' : 'timeline';
-  toggleViewBtn.textContent = `Switch to ${currentView === 'timeline' ? 'Alumni' : 'Timeline'} View`;
+  toggleViewBtn.textContent = `${currentView === 'timeline' ? 'Alumni' : 'Timeline'}`;
   toggleAllBtn.style.display = currentView === 'timeline' ? 'inline-block' : 'none';
   timelineView.style.display = currentView === 'timeline' ? 'block' : 'none';
   alumniContainer.style.display = currentView === 'alumni' ? 'flex' : 'none';
