@@ -6,6 +6,7 @@ This public archive showcases historical events from Bondi Brass, Sydney, Austra
 - Toggle between Timeline and Alumni view
 - Expandable cards and modal popups
 - Responsive layout for all devices
+- Run via https://bondibrass.github.io/band-history-utils/
 
 ## Contact
 📧 bondibrass@gmail.com  
