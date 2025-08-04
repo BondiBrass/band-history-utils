@@ -14,7 +14,9 @@ const SHEET_URLS = {
 };
 
 function openSheet() {
-  window.open("https://docs.google.com/spreadsheets/d/18KQ-p9nwqmKol1gtwda6fYkOLyEwXffsMAjFTKP-CCQ/edit?usp=sharing", "_blank");
+  document.getElementById('aboutModal').style.display = 'block';
+  document.getElementById('modalBackdrop').style.display = 'block';
+  //window.open("https://docs.google.com/spreadsheets/d/18KQ-p9nwqmKol1gtwda6fYkOLyEwXffsMAjFTKP-CCQ/edit?usp=sharing", "_blank");
 }
 
 function showAbout() {
