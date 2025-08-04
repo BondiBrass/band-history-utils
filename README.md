@@ -1,10 +1,9 @@
 # Bondi Brass Archive
 
-This public archive showcases historical events and alumni from Bondi Brass.
+This public archive showcases historical events from Bondi Brass, Sydney, Australia.
 
 ## Features
 - Toggle between Timeline and Alumni view
-- Fetches live data from Google Sheets
 - Expandable cards and modal popups
 - Responsive layout for all devices
 
