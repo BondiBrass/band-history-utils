@@ -148,12 +148,13 @@ function renderTimeline(data) {
   });
 }
 
-function renderAlumni(data) {
+function xrenderAlumni(data) {
   alumniContainer.innerHTML = '';
   data.forEach(alum => {
     const initials = (alum.Name || '??').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
     const card = document.createElement('div');
     card.className = 'card alumni-card';
+	console.log( 'summary',alum.Name,' ', alum.Summary);
     card.innerHTML = `
       <div class="card-content alumni-card-content">
         <div class="top-row">
@@ -161,7 +162,7 @@ function renderAlumni(data) {
           <div class="name">${alum.Name || 'Unknown'}</div>
           ${alum.URL ? `<div class="link"><a href="${alum.URL}" target="_blank">Read More</a></div>` : ''}
         </div>
-        <div class="year">${alum.Year || ''}</div>
+        <div class="year">${alum.YearinBand || ''}</div>
         <div class="summary">${alum.Summary || ''}</div>
       </div>
     `;
@@ -173,48 +174,3 @@ function renderAlumni(data) {
 timelineView.style.display = 'block';
 toggleAllBtn.style.display = 'inline-block';
 loadCSVData(SHEET_URLS.timeline).then(render);
-
-function showTimeline() {
-  document.body.classList.add('timeline-mode');
-  document.body.classList.remove('alumni-mode');
-  document.getElementById('container').innerHTML = '';
-  loadTimeline(); // assumes this function already exists
-}
-
-function showAlumni() {
-  document.body.classList.add('alumni-mode');
-  document.body.classList.remove('timeline-mode');
-  document.getElementById('container').innerHTML = '';
-  loadAlumni(); // render alumni cards
-}
-
-// Dummy alumni data
-const alumniData = [
-  { name: "Alice Brass", year: "2005", summary: "Solo Cornet. Toured with BB in 2004–2005.", url: "#" },
-  { name: "Bob Horn", year: "2010", summary: "Principal Horn 2008–2010. Current teacher at XYZ.", url: "" }
-];
-
-function getInitials(name) {
-  return name.split(" ").map(word => word[0]).join("").toUpperCase();
-}
-
-function loadAlumni() {
-  const container = document.getElementById("container");
-  alumniData.forEach(alum => {
-    const card = document.createElement("div");
-    card.className = "card";
-    const initials = getInitials(alum.name);
-    card.innerHTML = \`
-      <div class="card-content">
-        <div class="top-row">
-          <div class="avatar">\${initials}</div>
-          <div class="name">\${alum.name}</div>
-          \${alum.url ? \`<div class="link"><a href="\${alum.url}" target="_blank">Read More</a></div>\` : ''}
-        </div>
-        <div class="year">\${alum.year}</div>
-        <div class="summary">\${alum.summary}</div>
-      </div>
-    \`;
-    container.appendChild(card);
-  });
-}

@@ -8,8 +8,8 @@ button { padding: 8px 12px; background: white; color: #007bff; border: none; bor
 
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 td { vertical-align: top; padding: 8px; text-align: center; position: relative; word-wrap: break-word; }
-td.date-col { width: 100px; font-weight: bold; color: orange; font-size: 1.5em; }
-td.dot-col { width: 25px; }
+td.date-col { width: 50px; font-weight: bold; color: orange; font-size: 1.4em; }
+td.dot-col { width: 20px; }
 td.card-col { width: auto; }
 
 .dot-container { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
@@ -45,115 +45,3 @@ footer { background: #ddd; padding: 10px; text-align: center; font-size: 0.85em;
 .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 998; }
 .modal-footer { text-align: right; margin-top: 1em; }
 
-/* Alumni Card Styles */
-.alumni-mode header, .alumni-mode footer {
-  background: #004d99;
-  color: white;
-  padding: 1em;
-  text-align: center;
-}
-
-.alumni-mode header h1 {
-  margin: 0;
-}
-
-.alumni-mode header h4 {
-  margin: 0.5em 0 0 0;
-  font-weight: normal;
-  font-size: 1em;
-}
-
-.alumni-mode header h5 {
-  margin: 0.5em 0 0 0;
-  font-weight: normal;
-  font-size: 1em;
-  color: yellow;
-}
-
-.alumni-mode .container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 1em;
-  flex: 1;
-}
-
-.alumni-mode .card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin: 10px;
-  flex: 1 1 300px;
-  max-width: 350px;
-  display: flex;
-  flex-direction: column;
-  height: 400px;
-  overflow: hidden;
-}
-
-.alumni-mode .card-content {
-  padding: 1em;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.alumni-mode .top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5em;
-}
-
-.alumni-mode .avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #ccc;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1em;
-  font-weight: bold;
-}
-
-.alumni-mode .name {
-  font-size: 1em;
-  font-weight: bold;
-  color: #004d99;
-  margin-left: 0.5em;
-  flex: 1;
-  text-align: left;
-}
-
-.alumni-mode .year {
-  font-size: 0.9em;
-  color: #666;
-  margin-bottom: 0.5em;
-}
-
-.alumni-mode .summary {
-  font-size: 0.95em;
-  flex: 1;
-  white-space: pre-wrap;
-  text-align: left;
-}
-
-.alumni-mode .link a {
-  color: #004d99;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 0.9em;
-}
-
-.alumni-mode .link a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 600px) {
-  .alumni-mode .card {
-    max-width: 90%;
-  }
-}

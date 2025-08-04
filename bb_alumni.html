@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bondi Brass Alumni</title>
+<style>
+  body { font-family: sans-serif; margin: 0; background: #f8f9fa; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+  header, footer { background: #004d99; color: white; padding: 1em; text-align: center; }
+  header h1 { margin: 0; }
+  header h4 { margin: 0.5em 0 0 0; font-weight: normal; font-size: 1em; }
+  header h5 { margin: 0.5em 0 0 0; font-weight: normal; font-size: 1em; color:yellow;}
+  .container { display: flex; flex-wrap: wrap; justify-content: center; padding: 1em; flex: 1; }
+  .card { background: white; border-radius: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 10px; flex: 1 1 300px; max-width: 350px; display: flex; flex-direction: column; height: 400px; overflow: hidden; }
+  .card-content { padding: 1em; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+  .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5em; }
+  .avatar { width: 50px; height: 50px; border-radius: 50%; background: #ccc; color: white; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: bold; }
+  .name { font-size: 1em; font-weight: bold; color: #004d99; margin-left: 0.5em; flex: 1; text-align: left; }
+  .year { font-size: 0.9em; color: #666; margin-bottom: 0.5em; }
+  .summary { font-size: 0.95em; flex: 1; white-space: pre-wrap; text-align: left; }
+  .link a { color: #004d99; text-decoration: none; font-weight: bold; font-size: 0.9em; }
+  .link a:hover { text-decoration: underline; }
+  @media (max-width: 600px) { .card { max-width: 90%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Bondi Brass Alumni</h1>
+  <h4><i>Distinguished Musical Alumni of Bondi Brass include Cliff Goodchild and others who have made significant contributions to the Australian and international music scene.</i></h4>
+	<br>
+  <h5><i>CDG OAM “There is nothing more thrilling than to get a group of young people and start them right from scratch, have them playing and all making music and over years to see them become professional players, amateur players, teachers”.</i></h5>
+</header>
+<div class="container" id="alumniContainer">Loading alumni...</div>
+<footer>
+  <p>&copy; 2025 Bondi Brass Alumni</p>
+</footer>
+<script>
+fetch('./data/BondiBrassAlumni.json')
+  .then(response => response.json())
+  .then(alumniData => {
+    const container = document.getElementById('alumniContainer');
+    container.innerHTML = '';
+    alumniData.forEach(alum => {
+      const initials = alum.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-content">
+          <div class="top-row">
+            <div class="avatar">${initials}</div>
+            <div class="name">${alum.name}</div>
+            ${alum.url ? `<div class="link"><a href="${alum.url}" target="_blank">Read More</a></div>` : ''}
+          </div>
+          <div class="year">${alum.year}</div>
+          <div class="summary">${alum.summary}</div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  })
+  .catch(err => {
+    document.getElementById('alumniContainer').innerText = 'Error loading alumni data.';
+    console.error(err);
+  });
+</script>
+</body>
+</html>
+
