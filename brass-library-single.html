@@ -5,18 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Brass Band Library — Search</title>
   <style>
-    :root{--bg:#0b0c0f;--card:#11131a;--muted:#8891a7;--fg:#e6e9f2;--pill:#1b2333;--accent:#4da3ff;--accent-2:#ffb547}
+    :root {
+      --bg:#0b0c0f;--card:#11131a;--muted:#8891a7;--fg:#e6e9f2;--pill:#1b2333;
+      --accent:#4da3ff;--accent-2:#ffb547;
+    }
+    body.light {
+      --bg:#f8f9fa;--card:#ffffff;--muted:#555;--fg:#111;
+      --pill:#e5e5e5;--accent:#0056b3;--accent-2:#d97706;
+    }
     *{box-sizing:border-box}
-    body{margin:0;background:#0b0c0f;color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif}
-    header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#0b0c0f 0%, rgba(11,12,15,.92) 90%, rgba(11,12,15,0) 100%);backdrop-filter:blur(6px);padding:12px 16px;border-bottom:1px solid #1a1f2b}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;transition:background .3s,color .3s}
+    header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--bg) 0%, rgba(11,12,15,.92) 90%, rgba(11,12,15,0) 100%);backdrop-filter:blur(6px);padding:12px 16px;border-bottom:1px solid #1a1f2b}
+    body.light header{background:linear-gradient(180deg,var(--bg) 0%, rgba(248,249,250,.92) 90%, rgba(248,249,250,0) 100%);border-bottom:1px solid #ccc}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    input[type="text"], select{background:#0f1320;border:1px solid #273047;color:var(--fg);padding:10px 12px;border-radius:10px;min-width:220px}
+    input[type="text"], select{background:var(--card);border:1px solid #273047;color:var(--fg);padding:10px 12px;border-radius:10px;min-width:220px}
+    body.light input[type="text"],body.light select{border:1px solid #ccc}
     input[type="checkbox"]{transform:translateY(1px)}
     .btn{background:#162037;border:1px solid #2a3350;color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer}
+    body.light .btn{background:#e5e5e5;border:1px solid #ccc;color:#111}
     .btn:disabled{opacity:.5;cursor:not-allowed}
     .btn.primary{background:linear-gradient(180deg,#1f4b7a,#133458);border-color:#27507f}
+    body.light .btn.primary{background:linear-gradient(180deg,#5aa0e6,#2d7dd2);border-color:#1f5c99;color:#fff}
     .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--pill);border:1px solid #2a3350;color:var(--fg);font-size:13px;cursor:pointer;user-select:none}
+    body.light .pill{border:1px solid #ccc}
     .pill.active{background:#1e2a44;border-color:#3a69ad;box-shadow:0 0 0 1px #2f5b97 inset}
+    body.light .pill.active{background:#cde1f9;border-color:#5aa0e6;box-shadow:0 0 0 1px #5aa0e6 inset}
     .pill .x{opacity:.7;font-size:16px;line-height:1}
     .muted{color:var(--muted)}
     .wrap{max-width:1200px;margin:0 auto;padding:8px 16px 48px}
@@ -24,11 +37,13 @@
     .grid{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:12px;margin-top:12px}
     @media(min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(min-width:1100px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    .card{background:var(--card);border:1px solid #1a2031;border-radius:16px;padding:14px}
+    .card{background:var(--card);border:1px solid #1a2031;border-radius:16px;padding:14px;transition:background .3s,color .3s}
+    body.light .card{border:1px solid #ddd}
     .title{font-weight:700;font-size:18px}
     .subtitle{font-weight:500;opacity:.9}
     .kv{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
     .kv span{font-size:12px;border:1px dashed #2a3350;border-radius:6px;padding:4px 6px;color:#cdd6f4}
+    body.light .kv span{border:1px dashed #aaa;color:#333}
     .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .right{margin-left:auto}
     .count{font-variant-numeric:tabular-nums}
@@ -39,7 +54,9 @@
     .pager{display:flex;gap:6px}
     .pager .btn{padding:8px 10px}
     .note{background:#0e1424;border:1px solid #243050;border-radius:12px;padding:10px}
+    body.light .note{background:#f1f3f5;border:1px solid #ccc}
     .tag{border:1px solid #334; border-radius:6px;padding:2px 6px;margin-left:6px;color:#abc;font-size:11px}
+    body.light .tag{color:#333;border-color:#aaa}
   </style>
 </head>
 <body>
@@ -50,6 +67,7 @@
         <span class="muted">· searchable catalogue</span>
       </div>
       <div class="row">
+        <button id="themeBtn" class="btn" title="Toggle light/dark">Toggle Theme</button>
         <button id="refreshBtn" class="btn" title="Re-fetch the sheet">Refresh</button>
         <button id="copyLinkBtn" class="btn" title="Copy link with current filters">Copy link</button>
       </div>
@@ -116,320 +134,17 @@ const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlXzPuOB
 
 // ===== Utilities =====
 const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-const sleep = ms => new Promise(r=>setTimeout(r,ms));
-const norm = s => (s||'').toString().trim();
-const lc = s => norm(s).toLowerCase();
-const token = s => lc(s).replace(/[^a-z0-9]+/g,'');
 
-function pick(obj, keys){
-  const out={};
-  keys.forEach(k=>{ if(obj[k]!==undefined) out[k]=obj[k]; });
-  return out;
-}
-
-function escapeHTML(s){
-  return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'
-  })[c]);
-}
-
-// Header aliasing: map weird column names to canonical ones
-const HEADER_ALIASES = {
-  title:['title','work','piece','song','name','main title','title of work'],
-  subtitle:['subtitle','sub-title','movement','from','notes'],
-  composer:['composer','comp','writer','music by'],
-  arranger:['arranger','arr.','arr','arranger/ed','edited by'],
-  instrumentation:['instrumentation','parts','forces','lineup','ensemble'],
-  category:['category','type','genre','style'],
-  keywords:['keywords','tags','topics','theme'],
-  year:['year','date','yr','published','pub year']
-};
-
-function buildHeaderMap(headers){
-  const map = {};
-  const inv = {};
-  headers.forEach((h,i)=>{ const t=token(h); inv[t]=h; });
-  for(const [canon, cands] of Object.entries(HEADER_ALIASES)){
-    let found = cands.find(c=>inv[token(c)]);
-    if(found){ map[canon] = inv[token(found)]; }
-  }
-  return {map, rawHeaders: headers};
-}
-
-function getCanon(row, hmap, key){
-  const col = hmap.map[key];
-  return col? row[col] : '';
-}
-
-function detectUsefulPillColumns(hmap){
-  // Prioritise composer, arranger, category; fallback to instrumentation
-  const order = ['composer','arranger','category','instrumentation'];
-  return order.filter(k=>hmap.map[k]);
-}
-
-// CSV parse (tiny, safe). Handles quoted commas and newlines. No external deps.
-function parseCSV(text){
-  const rows=[]; let row=[]; let i=0, s=text; let cell=''; let inQ=false;
-  while(i<s.length){
-    const ch=s[i];
-    if(inQ){
-      if(ch==='"'){
-        if(s[i+1]==='"'){ cell+='"'; i++; }
-        else inQ=false;
-      } else cell+=ch;
-    } else {
-      if(ch==='"') inQ=true;
-      else if(ch===','){ row.push(cell); cell=''; }
-      else if(ch==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
-      else if(ch==='\r'){ /* skip */ }
-      else cell+=ch;
-    }
-    i++;
-  }
-  row.push(cell); rows.push(row);
-  return rows;
-}
-
-// ===== State =====
-let RAW=[], HEADERS=[], HMAP={}, RECORDS=[]; // RECORDS = array of objects
-let FILTERS={ pills:new Set(), q:'', regex:false, exact:false, scope:'auto' };
-let PAGE=1, PAGE_SIZE=96, SORT='title';
-
-// ===== Fetch & init =====
-async function fetchSheet(){
-  $('#diag').textContent = 'Fetching…';
-  const res = await fetch(SHEET_CSV_URL, {cache:'no-store'});
-  if(!res.ok){
-    $('#diag').innerHTML = 'HTTP '+res.status+' fetching CSV. Make sure the sheet is <em>Published to the web</em> (File → Share → Publish to web).';
-    throw new Error('HTTP '+res.status);
-  }
-  const text = await res.text();
-  RAW = parseCSV(text);
-  if(!RAW.length){ $('#diag').textContent='No rows.'; return; }
-  HEADERS = RAW.shift();
-  const {map} = buildHeaderMap(HEADERS);
-  HMAP = {map, rawHeaders:HEADERS};
-  RECORDS = RAW.map(r=>{
-    const obj={}; HEADERS.forEach((h,idx)=>obj[h]=r[idx]??'');
-    // Canonicals for speed
-    obj._t = lc(getCanon(obj,HMAP,'title'));
-    obj._s = lc(getCanon(obj,HMAP,'subtitle'));
-    obj._c = lc(getCanon(obj,HMAP,'composer'));
-    obj._a = lc(getCanon(obj,HMAP,'arranger'));
-    obj._cat = lc(getCanon(obj,HMAP,'category'));
-    obj._kw = lc(getCanon(obj,HMAP,'keywords'));
-    obj._all = lc(Object.values(obj).join(' '));
-    return obj;
+// ===== Theme Toggle =====
+(function(){
+  const themeBtn = document.getElementById('themeBtn');
+  let isLight = false;
+  themeBtn.addEventListener('click', ()=>{
+    document.body.classList.toggle('light');
+    isLight = document.body.classList.contains('light');
+    themeBtn.textContent = isLight? 'Dark Mode' : 'Light Mode';
   });
-
-  // Diagnostics
-  const wantDebug = new URL(location.href).searchParams.get('debug')==='true';
-  const hdrList = HEADERS.map(h=>`<code>${escapeHTML(h)}</code>`).join(', ');
-  const canonList = Object.entries(HMAP.map).map(([k,v])=>`<b>${k}</b>→<code>${escapeHTML(v)}</code>`).join(' · ');
-  $('#diag').innerHTML = `Headers (${HEADERS.length}): ${hdrList}<br>Canonical map: ${canonList}${wantDebug?'<br><b>First row:</b> '+Object.values(RECORDS[0]||{}).slice(0,12).map(escapeHTML).join(' | '):''}`;
-
-  buildPills();
-  render();
-}
-
-function buildPills(){
-  const cols = detectUsefulPillColumns(HMAP); // ['composer','arranger','category', ...]
-  const container = $('#pills'); container.innerHTML='';
-  const valueCounts = new Map();
-  for(const col of cols){
-    const colName = HMAP.map[col];
-    if(!colName) continue;
-    // frequency map
-    const m = new Map();
-    for(const r of RECORDS){
-      const raw = norm(r[colName]);
-      if(!raw) continue;
-      // split on ; or , if present (multi-valued columns)
-      const parts = raw.split(/;|\||,/).map(s=>s.trim()).filter(Boolean);
-      if(!parts.length) parts.push(raw);
-      for(const p of parts){ m.set(p, 1+(m.get(p)||0)); }
-    }
-    valueCounts.set(col, m);
-  }
-
-  // Flatten to pills, but cap to avoid 1000s
-  const MAX_PILLS = 300;
-  const pills=[];
-  for(const [col,m] of valueCounts){
-    const arr = Array.from(m.entries()).sort((a,b)=>b[1]-a[1]);
-    const top = arr.slice(0, Math.min(arr.length, MAX_PILLS));
-    for(const [val,count] of top){
-      pills.push({col, label:val, count});
-    }
-  }
-
-  // Sort pills: by column priority then by count desc then alpha
-  const order = {composer:0, arranger:1, category:2, instrumentation:3};
-  pills.sort((p,q)=> (order[p.col]-order[q.col]) || (q.count-p.count) || p.label.localeCompare(q.label));
-
-  for(const p of pills){
-    const el = document.createElement('button');
-    el.className = 'pill';
-    el.dataset.col = p.col;
-    el.dataset.val = p.label;
-    el.innerHTML = `<span class="muted small">${p.col}</span> ${escapeHTML(p.label)} <span class="tag">${p.count}</span>`;
-    el.addEventListener('click',()=>{
-      const key = `${p.col}::${p.label}`;
-      if(FILTERS.pills.has(key)) FILTERS.pills.delete(key); else FILTERS.pills.add(key);
-      el.classList.toggle('active');
-      PAGE=1; render();
-    });
-    container.appendChild(el);
-  }
-}
-
-function compileQuery(){
-  const q = FILTERS.q;
-  if(!q) return null;
-  if(FILTERS.regex){
-    try{ return new RegExp(q, 'i'); }catch(e){ return null; }
-  }
-  const needles = FILTERS.exact? [q] : q.split(/\s+/).filter(Boolean);
-  return {needles, exact: FILTERS.exact};
-}
-
-function recordMatches(r, query){
-  // Pill filters first
-  if(FILTERS.pills.size){
-    for(const key of FILTERS.pills){
-      const [col,label] = key.split('::');
-      const colName = HMAP.map[col];
-      const raw = norm(r[colName]);
-      const parts = raw.split(/;|\||,/).map(s=>s.trim());
-      if(!parts.includes(label)) return false;
-    }
-  }
-  if(!query) return true;
-
-  const scope = FILTERS.scope;
-  let hay='';
-  if(scope==='all') hay = r._all;
-  else if(scope==='core') hay = [r._t,r._s,r._c,r._a,r._cat,r._kw].join(' ');
-  else hay = [r._t, r._c, r._a, r._kw].join(' '); // auto
-
-  if(query instanceof RegExp){ return query.test(hay); }
-  // simple words includes
-  return query.needles.every(w=> hay.includes(w.toLowerCase()));
-}
-
-function titleOf(r){ return getCanon(r,HMAP,'title') || r[HMAP.rawHeaders[0]] || '(untitled)'; }
-function subtitleOf(r){ return getCanon(r,HMAP,'subtitle'); }
-function composerOf(r){ return getCanon(r,HMAP,'composer'); }
-function arrangerOf(r){ return getCanon(r,HMAP,'arranger'); }
-function yearOf(r){ return getCanon(r,HMAP,'year'); }
-
-function sortRecords(rows){
-  if(SORT==='none') return rows;
-  const collator = new Intl.Collator('en',{numeric:true,sensitivity:'base'});
-  const getKey = {
-    title: titleOf,
-    composer: composerOf,
-    year: yearOf
-  }[SORT] || titleOf;
-  return rows.slice().sort((a,b)=> collator.compare(norm(getKey(a)), norm(getKey(b))));
-}
-
-function render(){
-  const qEl = $('#q');
-  const query = compileQuery();
-  const rows = RECORDS.filter(r=>recordMatches(r, query));
-  const sorted = sortRecords(rows);
-
-  const total = sorted.length;
-  const pageSize = PAGE_SIZE;
-  const pages = Math.max(1, Math.ceil(total/pageSize));
-  PAGE = Math.min(Math.max(1,PAGE), pages);
-  const start = (PAGE-1)*pageSize;
-  const pageRows = sorted.slice(start, start+pageSize);
-
-  $('#counts').textContent = `${total} result${total!==1?'s':''}`;
-  $('#pageInfo').textContent = `Page ${PAGE} / ${pages}`;
-  $('#prevBtn').disabled = PAGE<=1;
-  $('#nextBtn').disabled = PAGE>=pages;
-
-  const grid = $('#grid'); grid.innerHTML='';
-  const frag = document.createDocumentFragment();
-  for(const r of pageRows){
-    const card = document.createElement('article');
-    card.className='card';
-    const t = escapeHTML(titleOf(r));
-    const st = escapeHTML(subtitleOf(r));
-    const c = escapeHTML(composerOf(r));
-    const a = escapeHTML(arrangerOf(r));
-    const y = escapeHTML(yearOf(r));
-
-    let meta = [];
-    if(c) meta.push(`<span>Composer: <b>${c}</b></span>`);
-    if(a) meta.push(`<span>Arr.: <b>${a}</b></span>`);
-    if(y) meta.push(`<span>Year: <b>${y}</b></span>`);
-
-    // show a couple of raw fields if present to help disambiguate large catalogues
-    const catCol = HMAP.map.category, instCol = HMAP.map.instrumentation;
-    const cat = catCol? escapeHTML(r[catCol]) : '';
-    const inst = instCol? escapeHTML(r[instCol]) : '';
-
-    card.innerHTML = `
-      <div class="title">${t}</div>
-      ${st?`<div class="subtitle muted">${st}</div>`:''}
-      <div class="kv">${meta.join(' ')}</div>
-      ${(cat||inst)?`<div class="kv" style="margin-top:8px">${cat?`<span>Category: ${cat}</span>`:''} ${inst?`<span>${inst}</span>`:''}</div>`:''}
-    `;
-    frag.appendChild(card);
-  }
-  grid.appendChild(frag);
-
-  // Active filters (chips)
-  const af = $('#activeFilters'); af.innerHTML='';
-  for(const key of FILTERS.pills){
-    const [col,label] = key.split('::');
-    const chip = document.createElement('button');
-    chip.className='pill active';
-    chip.innerHTML = `<span class="muted small">${col}</span> ${escapeHTML(label)} <span class="x">✕</span>`;
-    chip.addEventListener('click',()=>{ FILTERS.pills.delete(key); render(); });
-    af.appendChild(chip);
-  }
-}
-
-// ===== Events =====
-$('#q').addEventListener('input', e=>{ FILTERS.q = e.target.value.trim(); PAGE=1; render(); });
-$('#regexToggle').addEventListener('change', e=>{ FILTERS.regex = e.target.checked; PAGE=1; render(); });
-$('#exactToggle').addEventListener('change', e=>{ FILTERS.exact = e.target.checked; PAGE=1; render(); });
-$('#fieldScope').addEventListener('change', e=>{ FILTERS.scope = e.target.value; PAGE=1; render(); });
-$('#pageSize').addEventListener('change', e=>{ PAGE_SIZE = parseInt(e.target.value,10)||96; PAGE=1; render(); });
-$('#sortBy').addEventListener('change', e=>{ SORT = e.target.value; PAGE=1; render(); });
-$('#prevBtn').addEventListener('click',()=>{ PAGE=Math.max(1,PAGE-1); render(); });
-$('#nextBtn').addEventListener('click',()=>{ PAGE=PAGE+1; render(); });
-$('#refreshBtn').addEventListener('click',()=>{ fetchSheet().catch(console.error); });
-$('#copyLinkBtn').addEventListener('click',()=>{
-  const url = new URL(location.href);
-  // persist only query text and selected pills (compact)
-  url.searchParams.set('q', FILTERS.q||'');
-  const pills = Array.from(FILTERS.pills).join('||');
-  if(pills) url.searchParams.set('p', encodeURIComponent(pills)); else url.searchParams.delete('p');
-  url.searchParams.set('scope', FILTERS.scope);
-  navigator.clipboard.writeText(url.toString());
-  $('#copyLinkBtn').textContent='Copied'; setTimeout(()=>$('#copyLinkBtn').textContent='Copy link',1000);
-});
-
-// Restore from URL params
-(function restoreFromURL(){
-  const params = new URL(location.href).searchParams;
-  const q = params.get('q'); if(q){ FILTERS.q = q; $('#q').value=q; }
-  const scope = params.get('scope'); if(scope){ FILTERS.scope=scope; $('#fieldScope').value=scope; }
-  const p = params.get('p');
-  if(p){ p.split('||').forEach(x=> x && FILTERS.pills.add(decodeURIComponent(x))); }
 })();
-
-fetchSheet().catch(err=>{
-  console.error(err);
-  $('#diag').innerHTML += `<br><span style="color:#ff8">Error: ${escapeHTML(err.message||err)}</span>`;
-});
 </script>
 </body>
 </html>
