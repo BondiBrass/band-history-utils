@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brass Band Library — Single File</title>
+  <style>
+  :root{
+    --bg:#0b0c0f; --panel:#12141a; --muted:#a7acb3; --text:#e8ecf1; --pill:#1c2230; --pill-active:#2f6fed;
+    --card:#0f131a; --border:#1f2937; --accent:#7aa2ff;
+    --gap:12px;
+    --radius:14px;
+    --shadow: 0 4px 16px rgba(0,0,0,.25);
+    --lh:1.35;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font:16px/var(--lh) system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    color:var(--text); background:linear-gradient(180deg,#0b0c0f,#0b0c0f 240px,#0b0c0f);
+  }
+  .app-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px clamp(12px,4vw,28px); background:var(--panel); position:sticky; top:0; z-index:10; box-shadow:var(--shadow);
+  }
+  .app-header h1{margin:0; font-weight:700; letter-spacing:.2px; font-size:clamp(18px,2.8vw,24px)}
+  .search-wrap{display:flex; gap:8px; align-items:center; width:min(780px,90vw)}
+  .search-wrap input{
+    flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#0c1016; color:var(--text);
+  }
+  .search-wrap button{padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:#141923; color:var(--text); cursor:pointer}
+  .search-wrap button:hover{filter:brightness(1.1)}
+
+  #controls{display:grid; grid-template-columns:1fr; gap:10px; padding:14px clamp(12px,4vw,28px); background:transparent}
+  #controls details{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:6px 10px; box-shadow:var(--shadow)
+  }
+  #controls summary{cursor:pointer; font-weight:600; color:#d7def0; outline:none}
+  .pills{padding:8px 2px 2px 2px}
+  .pill{
+    display:inline-block; margin:6px 6px 0 0; padding:6px 12px; border-radius:999px;
+    background:var(--pill); color:#dfe6f6; border:1px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap;
+  }
+  .pill:hover{filter:brightness(1.08)}
+  .pill.active{ background:var(--pill-active); border-color:transparent; color:white }
+
+  .toggles{display:flex; gap:16px; padding:0 2px; align-items:center}
+  .toggles input{transform:translateY(1px)}
+
+  .summary-bar{
+    padding:8px clamp(12px,4vw,28px); color:var(--muted);
+  }
+
+  .cards-grid{
+    display:grid; gap:var(--gap); padding:6px clamp(12px,4vw,28px) 30px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px;
+  }
+  .card h3{margin:0 0 2px 0; font-size:18px}
+  .card em{color:#b8c1cc}
+  .meta{font-size:14px; color:#c7ced9}
+  .badges{display:flex; flex-wrap:wrap; gap:6px}
+  .badge{font-size:12px; padding:4px 8px; border-radius:999px; background:#192131; border:1px solid var(--border); color:#bcd0ff}
+
+  .links{display:flex; gap:10px; margin-top:6px}
+  .links a{color:var(--accent); text-decoration:none}
+  .links a:hover{text-decoration:underline}
+
+  .debug{white-space:pre-wrap; background:#0c1016; border-top:1px solid var(--border); padding:12px clamp(12px,4vw,28px); color:#dfe6f6}
+  @media (min-width: 900px){
+    #controls{grid-template-columns: repeat(2,1fr)}
+  }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Brass Band Library</h1>
+    <div class="search-wrap">
+      <input id="q" type="search" placeholder="Search title / subtitle / composer / arranger…" autocomplete="off" />
+      <button id="clear-filters" title="Clear all filters">Clear</button>
+    </div>
+  </header>
+
+  <section id="controls">
+    <details open>
+      <summary>Composer</summary>
+      <div id="pills-composer" class="pills"></div>
+    </details>
+
+    <details>
+      <summary>Arranger</summary>
+      <div id="pills-arranger" class="pills"></div>
+    </details>
+
+    <details>
+      <summary>Category / Genre</summary>
+      <div id="pills-category" class="pills"></div>
+    </details>
+
+    <details>
+      <summary>Grade</summary>
+      <div id="pills-grade" class="pills"></div>
+    </details>
+
+    <div class="toggles">
+      <label><input type="checkbox" id="toggle-score" /> Has View Score</label>
+      <label><input type="checkbox" id="toggle-recording" /> Has Recording</label>
+    </div>
+  </section>
+
+  <section class="summary-bar">
+    <span id="result-count">0</span> results
+    <span id="active-filters"></span>
+  </section>
+
+  <main id="cards" class="cards-grid" aria-live="polite"></main>
+
+  <aside id="debug" class="debug" hidden></aside>
+
+  <footer class="app-footer">
+    <small>Fully self-contained build. Paste your CSV into the block below and reload. Add <code>?debug=true</code> to view header mapping.</small>
+  </footer>
+
+  <!-- ======== Inline CSV (Self-contained) ========
+       Paste the entire CSV from your published sheet here.
+       If this block is empty, the app will FAllBACK to fetching from the URL.
+  -->
+  <script type="text/csv" id="DATA_CSV">
+Title,Subtitle,Composer,Arranger,Grade,Length,Category,View Score,Recording
+Jupiter,from The Planets,Gustav Holst,Sparke,4,7:30,"Orchestral transcription; March",https://example.com/score,https://example.com/audio
+  </script>
+
+  <!-- Fallback URL (used only if inline CSV above is empty) -->
+  <script>
+    const FALLBACK_SHEET_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlXzPuOBpOlp9y9bj3wU0y4s7TUsrIWqehQ0MoVWfROYTSxbS6xF8kqpDuRq-rfmDV4ATtpLoTgd28/pub?gid=0&single=true&output=csv";
+  </script>
+
+  <script>
+  /* ===================== Utilities ===================== */
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+  const escapeHTML = (s='') => s.replace(/[&<>\"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const normKey = (k='') => k.toUpperCase().replace(/[^A-Z]/g,'');
+  const splitMulti = (str='') => (str ? str.split(/[;,|]/g).map(s => s.trim()).filter(Boolean) : []);
+  const hasQueryParam = (name) => new URL(location.href).searchParams.get(name) === 'true';
+
+  /* ===================== Tiny CSV Parser (quotes safe) ===================== */
+  function parseCSV(text){
+    const rows = [];
+    let i=0, field='', row=[], insideQuotes=false;
+    while(i < text.length){
+      const c = text[i];
+      if(c === '"'){
+        if(insideQuotes && text[i+1] === '"'){ field += '"'; i++; } // escaped quote
+        else insideQuotes = !insideQuotes;
+      }else if(c === ',' && !insideQuotes){
+        row.push(field); field='';
+      }else if((c === '\n' || c === '\r') && !insideQuotes){
+        if(c === '\r' && text[i+1] === '\n'){ i++; } // CRLF
+        row.push(field); field='';
+        rows.push(row); row=[];
+      }else{
+        field += c;
+      }
+      i++;
+    }
+    if(field.length || row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  /* ===================== Header Mapping ===================== */
+  const HEADER_MAP = {
+    TITLE: ['TITLE','WORKTITLE','PIECETITLE'],
+    SUBTITLE: ['SUBTITLE','SUBTITLEIFAPPLICABLEFROMTHEPLANETS'],
+    COMPOSER: ['COMPOSER','WRITER','MUSICBY'],
+    ARRANGER: ['ARRANGER','ARR'],
+    GRADE: ['GRADE','GRADEEQUIVALENT','ESTIMATE','GRADING'],
+    LENGTH: ['LENGTH','PERFORMANCETIME','DURATION','LENGTHPERFORMANCETIME'],
+    CATEGORY: ['CATEGORY','CATEGORIES','GENRE','CATEGORYSGENRES'],
+    VIEWSCORE: ['VIEWSCORE','SCORE','LINKTOSCORE','VIEWFULLSCORE','VIEW SCORE'],
+    RECORDING: ['RECORDING','LINKTORECORDING','RECORDINGLINK','RECORDING / LINK TO RECORDING']
+  };
+
+  function buildHeaderIndex(headers){
+    const H = headers.map(h => normKey(h));
+    const idx = {};
+    for(const canonical in HEADER_MAP){
+      const candidates = HEADER_MAP[canonical];
+      let pos = -1;
+      for(const cand of candidates){
+        const n = normKey(cand);
+        pos = H.indexOf(n);
+        if(pos !== -1) break;
+      }
+      if(pos !== -1) idx[canonical] = pos;
+    }
+    return idx;
+  }
+
+  /* ===================== State ===================== */
+  let DATA = [];
+  const filters = {
+    COMPOSER: new Set(),
+    ARRANGER: new Set(),
+    CATEGORY: new Set(),
+    GRADE: new Set(),
+    HAS_SCORE: false,
+    HAS_RECORDING: false,
+    q: ''
+  };
+
+  /* ===================== Load & Prepare ===================== */
+  async function load(){
+    // Try inline CSV first
+    let csvText = ($('#DATA_CSV')?.textContent || '').trim();
+    if(!csvText){
+      // fallback fetch
+      const res = await fetch(FALLBACK_SHEET_CSV_URL);
+      if(!res.ok) throw new Error('HTTP ' + res.status + ' fetching CSV');
+      csvText = await res.text();
+    }
+    const rows = parseCSV(csvText);
+    if(!rows.length) throw new Error('No rows in CSV');
+
+    const headers = rows[0];
+    const idx = buildHeaderIndex(headers);
+
+    if(hasQueryParam('debug')){
+      const dbg = $('#debug');
+      dbg.hidden = false;
+      dbg.textContent = [
+        'Recognized headers → column index',
+        JSON.stringify(idx, null, 2),
+        '',
+        'First data row (raw):',
+        JSON.stringify(rows[1]||[], null, 2),
+        '',
+        'Headers (original):',
+        JSON.stringify(headers, null, 2)
+      ].join('\n');
+    }
+
+    const RAW = rows.slice(1).filter(r => r.some(x => (x||'').trim() !== ''));
+    DATA = RAW.map(r => {
+      const obj = {};
+      obj.TITLE = idx.TITLE != null ? r[idx.TITLE] : '';
+      obj.SUBTITLE = idx.SUBTITLE != null ? r[idx.SUBTITLE] : '';
+      obj.COMPOSER = idx.COMPOSER != null ? r[idx.COMPOSER] : '';
+      obj.ARRANGER = idx.ARRANGER != null ? r[idx.ARRANGER] : '';
+      obj.GRADE = idx.GRADE != null ? (r[idx.GRADE]||'').toString().trim() : '';
+      obj.LENGTH = idx.LENGTH != null ? r[idx.LENGTH] : '';
+      obj.CATEGORY = idx.CATEGORY != null ? r[idx.CATEGORY] : '';
+      obj.VIEWSCORE = idx.VIEWSCORE != null ? r[idx.VIEWSCORE] : '';
+      obj.RECORDING = idx.RECORDING != null ? r[idx.RECORDING] : '';
+
+      obj._categories = splitMulti(obj.CATEGORY).map(s => s.replace(/^\s*-\s*/,'')).filter(Boolean);
+      obj._blob = [obj.TITLE, obj.SUBTITLE, obj.COMPOSER, obj.ARRANGER, obj.CATEGORY].join(' ').toLowerCase();
+      return obj;
+    });
+
+    renderPills('COMPOSER', DATA.map(d => d.COMPOSER));
+    renderPills('ARRANGER', DATA.map(d => d.ARRANGER));
+    renderPills('CATEGORY', DATA.flatMap(d => d._categories));
+    renderPills('GRADE', DATA.map(d => d.GRADE));
+
+    applyFilters();
+  }
+
+  /* ===================== Pills ===================== */
+  function renderPills(field, values){
+    const container = $('#pills-' + field.toLowerCase());
+    const uniq = [...new Map(values.filter(Boolean).map(v => [v, (v||'')])).keys()].sort((a,b)=>a.localeCompare(b));
+    container.innerHTML = uniq.map(v => `<span class="pill" data-field="${field}" data-value="${escapeHTML(v)}">${escapeHTML(v)}</span>`).join('');
+  }
+
+  document.addEventListener('click', (e) => {
+    const pill = e.target.closest('.pill');
+    if(!pill) return;
+    const field = pill.dataset.field;
+    const value = pill.dataset.value;
+    const set = filters[field];
+    if(!(set instanceof Set)) return;
+    if(set.has(value)) set.delete(value); else set.add(value);
+    pill.classList.toggle('active');
+    applyFilters();
+  });
+
+  /* ===================== Toggles & Search ===================== */
+  $('#toggle-score').addEventListener('change', (e)=>{ filters.HAS_SCORE = e.target.checked; applyFilters(); });
+  $('#toggle-recording').addEventListener('change', (e)=>{ filters.HAS_RECORDING = e.target.checked; applyFilters(); });
+  $('#q').addEventListener('input', (e)=>{ filters.q = (e.target.value||'').toLowerCase(); applyFilters(); });
+  $('#clear-filters').addEventListener('click', ()=>{
+    filters.COMPOSER.clear(); filters.ARRANGER.clear(); filters.CATEGORY.clear(); filters.GRADE.clear();
+    filters.HAS_SCORE = false; filters.HAS_RECORDING = false; filters.q='';
+    $$('.pill.active').forEach(el => el.classList.remove('active'));
+    $('#toggle-score').checked = false; $('#toggle-recording').checked = false; $('#q').value = '';
+    applyFilters();
+  });
+
+  /* ===================== Filtering & Rendering ===================== */
+  function matchAll(d){
+    if(filters.q && !d._blob.includes(filters.q)) return false;
+
+    for(const field of ['COMPOSER','ARRANGER','GRADE']){
+      const set = filters[field];
+      if(set.size){
+        const val = (d[field]||'');
+        if(!set.has(val)) return false;
+      }
+    }
+
+    if(filters.CATEGORY.size){
+      if(!d._categories.length) return false;
+      let ok=false;
+      for(const v of filters.CATEGORY){
+        if(d._categories.some(c => c.toLowerCase() === v.toLowerCase())) { ok=true; break; }
+      }
+      if(!ok) return false;
+    }
+
+    if(filters.HAS_SCORE && !d.VIEWSCORE) return false;
+    if(filters.HAS_RECORDING && !d.RECORDING) return false;
+
+    return true;
+  }
+
+  function cardHTML(d){
+    const cats = d._categories.map(c => `<span class="badge">${escapeHTML(c)}</span>`).join('');
+    const links = [
+      d.VIEWSCORE ? `<a href="${escapeHTML(d.VIEWSCORE)}" target="_blank" rel="noopener">View Score</a>` : '',
+      d.RECORDING ? `<a href="${escapeHTML(d.RECORDING)}" target="_blank" rel="noopener">Recording</a>` : ''
+    ].filter(Boolean).join('');
+    return `<article class="card">
+      <h3>${escapeHTML(d.TITLE||'Untitled')}</h3>
+      ${d.SUBTITLE ? `<div class="meta"><em>${escapeHTML(d.SUBTITLE)}</em></div>` : ''}
+      <div class="meta">Composer: ${escapeHTML(d.COMPOSER||'')}</div>
+      <div class="meta">Arranger: ${escapeHTML(d.ARRANGER||'')}</div>
+      <div class="meta">Grade: ${escapeHTML(d.GRADE||'')}</div>
+      <div class="meta">Length: ${escapeHTML(d.LENGTH||'')}</div>
+      ${cats ? `<div class="badges">${cats}</div>` : ''}
+      ${links ? `<div class="links">${links}</div>` : ''}
+    </article>`;
+  }
+
+  function applyFilters(){
+    const out = DATA.filter(matchAll).sort((a,b)=> (a.TITLE||'').localeCompare(b.TITLE||''));
+    $('#cards').innerHTML = out.map(cardHTML).join('');
+    $('#result-count').textContent = out.length.toString();
+
+    const af = [];
+    for(const f of ['COMPOSER','ARRANGER','CATEGORY','GRADE']){
+      if(filters[f].size){ af.push(`${f.toLowerCase()}: ${[...filters[f]].join(' + ')}`); }
+    }
+    if(filters.HAS_SCORE) af.push('has:score');
+    if(filters.HAS_RECORDING) af.push('has:recording');
+    if(filters.q) af.push(`q:“${escapeHTML(filters.q)}”`);
+    $('#active-filters').innerHTML = af.length ? ' · ' + af.join(' · ') : '';
+  }
+
+  load().catch(err => {
+    $('#cards').innerHTML = `<p style="color:#f88">Error: ${escapeHTML(err.message)}</p>`;
+  });
+  </script>
+</body>
+</html>
