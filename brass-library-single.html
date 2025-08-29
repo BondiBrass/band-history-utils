@@ -1,370 +1,435 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Brass Band Library — Single File</title>
+  <title>Brass Band Library — Search</title>
   <style>
-  :root{
-    --bg:#0b0c0f; --panel:#12141a; --muted:#a7acb3; --text:#e8ecf1; --pill:#1c2230; --pill-active:#2f6fed;
-    --card:#0f131a; --border:#1f2937; --accent:#7aa2ff;
-    --gap:12px;
-    --radius:14px;
-    --shadow: 0 4px 16px rgba(0,0,0,.25);
-    --lh:1.35;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font:16px/var(--lh) system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    color:var(--text); background:linear-gradient(180deg,#0b0c0f,#0b0c0f 240px,#0b0c0f);
-  }
-  .app-header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px clamp(12px,4vw,28px); background:var(--panel); position:sticky; top:0; z-index:10; box-shadow:var(--shadow);
-  }
-  .app-header h1{margin:0; font-weight:700; letter-spacing:.2px; font-size:clamp(18px,2.8vw,24px)}
-  .search-wrap{display:flex; gap:8px; align-items:center; width:min(780px,90vw)}
-  .search-wrap input{
-    flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#0c1016; color:var(--text);
-  }
-  .search-wrap button{padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:#141923; color:var(--text); cursor:pointer}
-  .search-wrap button:hover{filter:brightness(1.1)}
-
-  #controls{display:grid; grid-template-columns:1fr; gap:10px; padding:14px clamp(12px,4vw,28px); background:transparent}
-  #controls details{
-    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:6px 10px; box-shadow:var(--shadow)
-  }
-  #controls summary{cursor:pointer; font-weight:600; color:#d7def0; outline:none}
-  .pills{padding:8px 2px 2px 2px}
-  .pill{
-    display:inline-block; margin:6px 6px 0 0; padding:6px 12px; border-radius:999px;
-    background:var(--pill); color:#dfe6f6; border:1px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap;
-  }
-  .pill:hover{filter:brightness(1.08)}
-  .pill.active{ background:var(--pill-active); border-color:transparent; color:white }
-
-  .toggles{display:flex; gap:16px; padding:0 2px; align-items:center}
-  .toggles input{transform:translateY(1px)}
-
-  .summary-bar{
-    padding:8px clamp(12px,4vw,28px); color:var(--muted);
-  }
-
-  .cards-grid{
-    display:grid; gap:var(--gap); padding:6px clamp(12px,4vw,28px) 30px;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  }
-  .card{
-    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-    padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px;
-  }
-  .card h3{margin:0 0 2px 0; font-size:18px}
-  .card em{color:#b8c1cc}
-  .meta{font-size:14px; color:#c7ced9}
-  .badges{display:flex; flex-wrap:wrap; gap:6px}
-  .badge{font-size:12px; padding:4px 8px; border-radius:999px; background:#192131; border:1px solid var(--border); color:#bcd0ff}
-
-  .links{display:flex; gap:10px; margin-top:6px}
-  .links a{color:var(--accent); text-decoration:none}
-  .links a:hover{text-decoration:underline}
-
-  .debug{white-space:pre-wrap; background:#0c1016; border-top:1px solid var(--border); padding:12px clamp(12px,4vw,28px); color:#dfe6f6}
-  @media (min-width: 900px){
-    #controls{grid-template-columns: repeat(2,1fr)}
-  }
+    :root{--bg:#0b0c0f;--card:#11131a;--muted:#8891a7;--fg:#e6e9f2;--pill:#1b2333;--accent:#4da3ff;--accent-2:#ffb547}
+    *{box-sizing:border-box}
+    body{margin:0;background:#0b0c0f;color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif}
+    header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#0b0c0f 0%, rgba(11,12,15,.92) 90%, rgba(11,12,15,0) 100%);backdrop-filter:blur(6px);padding:12px 16px;border-bottom:1px solid #1a1f2b}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input[type="text"], select{background:#0f1320;border:1px solid #273047;color:var(--fg);padding:10px 12px;border-radius:10px;min-width:220px}
+    input[type="checkbox"]{transform:translateY(1px)}
+    .btn{background:#162037;border:1px solid #2a3350;color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.primary{background:linear-gradient(180deg,#1f4b7a,#133458);border-color:#27507f}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--pill);border:1px solid #2a3350;color:var(--fg);font-size:13px;cursor:pointer;user-select:none}
+    .pill.active{background:#1e2a44;border-color:#3a69ad;box-shadow:0 0 0 1px #2f5b97 inset}
+    .pill .x{opacity:.7;font-size:16px;line-height:1}
+    .muted{color:var(--muted)}
+    .wrap{max-width:1200px;margin:0 auto;padding:8px 16px 48px}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:12px;margin-top:12px}
+    @media(min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(min-width:1100px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .card{background:var(--card);border:1px solid #1a2031;border-radius:16px;padding:14px}
+    .title{font-weight:700;font-size:18px}
+    .subtitle{font-weight:500;opacity:.9}
+    .kv{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .kv span{font-size:12px;border:1px dashed #2a3350;border-radius:6px;padding:4px 6px;color:#cdd6f4}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .right{margin-left:auto}
+    .count{font-variant-numeric:tabular-nums}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .section{margin-top:12px}
+    .small{font-size:12px}
+    .footer{display:flex;justify-content:center;margin-top:16px}
+    .pager{display:flex;gap:6px}
+    .pager .btn{padding:8px 10px}
+    .note{background:#0e1424;border:1px solid #243050;border-radius:12px;padding:10px}
+    .tag{border:1px solid #334; border-radius:6px;padding:2px 6px;margin-left:6px;color:#abc;font-size:11px}
   </style>
 </head>
 <body>
-  <header class="app-header">
-    <h1>Brass Band Library</h1>
-    <div class="search-wrap">
-      <input id="q" type="search" placeholder="Search title / subtitle / composer / arranger…" autocomplete="off" />
-      <button id="clear-filters" title="Clear all filters">Clear</button>
+  <header>
+    <div class="row wrap" style="padding:0">
+      <div class="row" style="flex:1 1 auto">
+        <strong>Brass Band Library</strong>
+        <span class="muted">· searchable catalogue</span>
+      </div>
+      <div class="row">
+        <button id="refreshBtn" class="btn" title="Re-fetch the sheet">Refresh</button>
+        <button id="copyLinkBtn" class="btn" title="Copy link with current filters">Copy link</button>
+      </div>
     </div>
   </header>
 
-  <section id="controls">
-    <details open>
-      <summary>Composer</summary>
-      <div id="pills-composer" class="pills"></div>
-    </details>
-
-    <details>
-      <summary>Arranger</summary>
-      <div id="pills-arranger" class="pills"></div>
-    </details>
-
-    <details>
-      <summary>Category / Genre</summary>
-      <div id="pills-category" class="pills"></div>
-    </details>
-
-    <details>
-      <summary>Grade</summary>
-      <div id="pills-grade" class="pills"></div>
-    </details>
-
-    <div class="toggles">
-      <label><input type="checkbox" id="toggle-score" /> Has View Score</label>
-      <label><input type="checkbox" id="toggle-recording" /> Has Recording</label>
+  <div class="wrap">
+    <div class="row">
+      <input id="q" type="text" placeholder="Search title / composer / anything…" />
+      <select id="fieldScope" title="Fields to search">
+        <option value="auto" selected>Search: Auto (smart)</option>
+        <option value="all">Search: All fields</option>
+        <option value="core">Search: Core fields only</option>
+      </select>
+      <label class="muted small"><input id="regexToggle" type="checkbox"/> RegEx</label>
+      <label class="muted small"><input id="exactToggle" type="checkbox"/> Exact match</label>
+      <span class="right muted small">Source: Google Sheet CSV</span>
     </div>
-  </section>
 
-  <section class="summary-bar">
-    <span id="result-count">0</span> results
-    <span id="active-filters"></span>
-  </section>
+    <div class="section">
+      <div class="muted small">Filter by pill (click to toggle). We auto-build useful sets (Composer, Arranger, Category/Type if present).</div>
+      <div id="pills" class="chips" style="margin-top:8px"></div>
+    </div>
 
-  <main id="cards" class="cards-grid" aria-live="polite"></main>
+    <div class="section">
+      <div class="toolbar">
+        <div class="muted count" id="counts">0 results</div>
+        <div class="right row">
+          <label class="muted small">Per page
+            <select id="pageSize">
+              <option>24</option>
+              <option>48</option>
+              <option selected>96</option>
+              <option>200</option>
+            </select>
+          </label>
+          <select id="sortBy">
+            <option value="title">Sort: Title</option>
+            <option value="composer">Sort: Composer</option>
+            <option value="year">Sort: Year</option>
+            <option value="none">Sort: None (sheet order)</option>
+          </select>
+        </div>
+      </div>
+      <div id="activeFilters" class="meta"></div>
+      <div id="grid" class="grid"></div>
+      <div class="footer">
+        <div class="pager">
+          <button id="prevBtn" class="btn">◀ Prev</button>
+          <div class="muted small" id="pageInfo">Page 1</div>
+          <button id="nextBtn" class="btn">Next ▶</button>
+        </div>
+      </div>
+    </div>
 
-  <aside id="debug" class="debug" hidden></aside>
+    <details class="section">
+      <summary class="muted">Diagnostics</summary>
+      <div class="note small" id="diag">—</div>
+    </details>
+  </div>
 
-  <footer class="app-footer">
-    <small>Fully self-contained build. Paste your CSV into the block below and reload. Add <code>?debug=true</code> to view header mapping.</small>
-  </footer>
+<script>
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlXzPuOBpOlp9y9bj3wU0y4s7TUsrIWqehQ0MoVWfROYTSxbS6xF8kqpDuRq-rfmDV4ATtpLoTgd28/pub?gid=0&single=true&output=csv';
 
-  <!-- ======== Inline CSV (Self-contained) ========
-       Paste the entire CSV from your published sheet here.
-       If this block is empty, the app will FAllBACK to fetching from the URL.
-  -->
-  <script type="text/csv" id="DATA_CSV">
-Title,Subtitle,Composer,Arranger,Grade,Length,Category,View Score,Recording
-Jupiter,from The Planets,Gustav Holst,Sparke,4,7:30,"Orchestral transcription; March",https://example.com/score,https://example.com/audio
-  </script>
+// ===== Utilities =====
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const norm = s => (s||'').toString().trim();
+const lc = s => norm(s).toLowerCase();
+const token = s => lc(s).replace(/[^a-z0-9]+/g,'');
 
-  <!-- Fallback URL (used only if inline CSV above is empty) -->
-  <script>
-    const FALLBACK_SHEET_CSV_URL =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlXzPuOBpOlp9y9bj3wU0y4s7TUsrIWqehQ0MoVWfROYTSxbS6xF8kqpDuRq-rfmDV4ATtpLoTgd28/pub?gid=0&single=true&output=csv";
-  </script>
+function pick(obj, keys){
+  const out={};
+  keys.forEach(k=>{ if(obj[k]!==undefined) out[k]=obj[k]; });
+  return out;
+}
 
-  <script>
-  /* ===================== Utilities ===================== */
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
-  const escapeHTML = (s='') => s.replace(/[&<>\"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const normKey = (k='') => k.toUpperCase().replace(/[^A-Z]/g,'');
-  const splitMulti = (str='') => (str ? str.split(/[;,|]/g).map(s => s.trim()).filter(Boolean) : []);
-  const hasQueryParam = (name) => new URL(location.href).searchParams.get(name) === 'true';
+function escapeHTML(s){
+  return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'
+  })[c]);
+}
 
-  /* ===================== Tiny CSV Parser (quotes safe) ===================== */
-  function parseCSV(text){
-    const rows = [];
-    let i=0, field='', row=[], insideQuotes=false;
-    while(i < text.length){
-      const c = text[i];
-      if(c === '"'){
-        if(insideQuotes && text[i+1] === '"'){ field += '"'; i++; } // escaped quote
-        else insideQuotes = !insideQuotes;
-      }else if(c === ',' && !insideQuotes){
-        row.push(field); field='';
-      }else if((c === '\n' || c === '\r') && !insideQuotes){
-        if(c === '\r' && text[i+1] === '\n'){ i++; } // CRLF
-        row.push(field); field='';
-        rows.push(row); row=[];
-      }else{
-        field += c;
-      }
-      i++;
+// Header aliasing: map weird column names to canonical ones
+const HEADER_ALIASES = {
+  title:['title','work','piece','song','name','main title','title of work'],
+  subtitle:['subtitle','sub-title','movement','from','notes'],
+  composer:['composer','comp','writer','music by'],
+  arranger:['arranger','arr.','arr','arranger/ed','edited by'],
+  instrumentation:['instrumentation','parts','forces','lineup','ensemble'],
+  category:['category','type','genre','style'],
+  keywords:['keywords','tags','topics','theme'],
+  year:['year','date','yr','published','pub year']
+};
+
+function buildHeaderMap(headers){
+  const map = {};
+  const inv = {};
+  headers.forEach((h,i)=>{ const t=token(h); inv[t]=h; });
+  for(const [canon, cands] of Object.entries(HEADER_ALIASES)){
+    let found = cands.find(c=>inv[token(c)]);
+    if(found){ map[canon] = inv[token(found)]; }
+  }
+  return {map, rawHeaders: headers};
+}
+
+function getCanon(row, hmap, key){
+  const col = hmap.map[key];
+  return col? row[col] : '';
+}
+
+function detectUsefulPillColumns(hmap){
+  // Prioritise composer, arranger, category; fallback to instrumentation
+  const order = ['composer','arranger','category','instrumentation'];
+  return order.filter(k=>hmap.map[k]);
+}
+
+// CSV parse (tiny, safe). Handles quoted commas and newlines. No external deps.
+function parseCSV(text){
+  const rows=[]; let row=[]; let i=0, s=text; let cell=''; let inQ=false;
+  while(i<s.length){
+    const ch=s[i];
+    if(inQ){
+      if(ch==='"'){
+        if(s[i+1]==='"'){ cell+='"'; i++; }
+        else inQ=false;
+      } else cell+=ch;
+    } else {
+      if(ch==='"') inQ=true;
+      else if(ch===','){ row.push(cell); cell=''; }
+      else if(ch==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+      else if(ch==='\r'){ /* skip */ }
+      else cell+=ch;
     }
-    if(field.length || row.length){ row.push(field); rows.push(row); }
-    return rows;
+    i++;
+  }
+  row.push(cell); rows.push(row);
+  return rows;
+}
+
+// ===== State =====
+let RAW=[], HEADERS=[], HMAP={}, RECORDS=[]; // RECORDS = array of objects
+let FILTERS={ pills:new Set(), q:'', regex:false, exact:false, scope:'auto' };
+let PAGE=1, PAGE_SIZE=96, SORT='title';
+
+// ===== Fetch & init =====
+async function fetchSheet(){
+  $('#diag').textContent = 'Fetching…';
+  const res = await fetch(SHEET_CSV_URL, {cache:'no-store'});
+  if(!res.ok){
+    $('#diag').innerHTML = 'HTTP '+res.status+' fetching CSV. Make sure the sheet is <em>Published to the web</em> (File → Share → Publish to web).';
+    throw new Error('HTTP '+res.status);
+  }
+  const text = await res.text();
+  RAW = parseCSV(text);
+  if(!RAW.length){ $('#diag').textContent='No rows.'; return; }
+  HEADERS = RAW.shift();
+  const {map} = buildHeaderMap(HEADERS);
+  HMAP = {map, rawHeaders:HEADERS};
+  RECORDS = RAW.map(r=>{
+    const obj={}; HEADERS.forEach((h,idx)=>obj[h]=r[idx]??'');
+    // Canonicals for speed
+    obj._t = lc(getCanon(obj,HMAP,'title'));
+    obj._s = lc(getCanon(obj,HMAP,'subtitle'));
+    obj._c = lc(getCanon(obj,HMAP,'composer'));
+    obj._a = lc(getCanon(obj,HMAP,'arranger'));
+    obj._cat = lc(getCanon(obj,HMAP,'category'));
+    obj._kw = lc(getCanon(obj,HMAP,'keywords'));
+    obj._all = lc(Object.values(obj).join(' '));
+    return obj;
+  });
+
+  // Diagnostics
+  const wantDebug = new URL(location.href).searchParams.get('debug')==='true';
+  const hdrList = HEADERS.map(h=>`<code>${escapeHTML(h)}</code>`).join(', ');
+  const canonList = Object.entries(HMAP.map).map(([k,v])=>`<b>${k}</b>→<code>${escapeHTML(v)}</code>`).join(' · ');
+  $('#diag').innerHTML = `Headers (${HEADERS.length}): ${hdrList}<br>Canonical map: ${canonList}${wantDebug?'<br><b>First row:</b> '+Object.values(RECORDS[0]||{}).slice(0,12).map(escapeHTML).join(' | '):''}`;
+
+  buildPills();
+  render();
+}
+
+function buildPills(){
+  const cols = detectUsefulPillColumns(HMAP); // ['composer','arranger','category', ...]
+  const container = $('#pills'); container.innerHTML='';
+  const valueCounts = new Map();
+  for(const col of cols){
+    const colName = HMAP.map[col];
+    if(!colName) continue;
+    // frequency map
+    const m = new Map();
+    for(const r of RECORDS){
+      const raw = norm(r[colName]);
+      if(!raw) continue;
+      // split on ; or , if present (multi-valued columns)
+      const parts = raw.split(/;|\||,/).map(s=>s.trim()).filter(Boolean);
+      if(!parts.length) parts.push(raw);
+      for(const p of parts){ m.set(p, 1+(m.get(p)||0)); }
+    }
+    valueCounts.set(col, m);
   }
 
-  /* ===================== Header Mapping ===================== */
-  const HEADER_MAP = {
-    TITLE: ['TITLE','WORKTITLE','PIECETITLE'],
-    SUBTITLE: ['SUBTITLE','SUBTITLEIFAPPLICABLEFROMTHEPLANETS'],
-    COMPOSER: ['COMPOSER','WRITER','MUSICBY'],
-    ARRANGER: ['ARRANGER','ARR'],
-    GRADE: ['GRADE','GRADEEQUIVALENT','ESTIMATE','GRADING'],
-    LENGTH: ['LENGTH','PERFORMANCETIME','DURATION','LENGTHPERFORMANCETIME'],
-    CATEGORY: ['CATEGORY','CATEGORIES','GENRE','CATEGORYSGENRES'],
-    VIEWSCORE: ['VIEWSCORE','SCORE','LINKTOSCORE','VIEWFULLSCORE','VIEW SCORE'],
-    RECORDING: ['RECORDING','LINKTORECORDING','RECORDINGLINK','RECORDING / LINK TO RECORDING']
-  };
-
-  function buildHeaderIndex(headers){
-    const H = headers.map(h => normKey(h));
-    const idx = {};
-    for(const canonical in HEADER_MAP){
-      const candidates = HEADER_MAP[canonical];
-      let pos = -1;
-      for(const cand of candidates){
-        const n = normKey(cand);
-        pos = H.indexOf(n);
-        if(pos !== -1) break;
-      }
-      if(pos !== -1) idx[canonical] = pos;
+  // Flatten to pills, but cap to avoid 1000s
+  const MAX_PILLS = 300;
+  const pills=[];
+  for(const [col,m] of valueCounts){
+    const arr = Array.from(m.entries()).sort((a,b)=>b[1]-a[1]);
+    const top = arr.slice(0, Math.min(arr.length, MAX_PILLS));
+    for(const [val,count] of top){
+      pills.push({col, label:val, count});
     }
-    return idx;
   }
 
-  /* ===================== State ===================== */
-  let DATA = [];
-  const filters = {
-    COMPOSER: new Set(),
-    ARRANGER: new Set(),
-    CATEGORY: new Set(),
-    GRADE: new Set(),
-    HAS_SCORE: false,
-    HAS_RECORDING: false,
-    q: ''
-  };
+  // Sort pills: by column priority then by count desc then alpha
+  const order = {composer:0, arranger:1, category:2, instrumentation:3};
+  pills.sort((p,q)=> (order[p.col]-order[q.col]) || (q.count-p.count) || p.label.localeCompare(q.label));
 
-  /* ===================== Load & Prepare ===================== */
-  async function load(){
-    // Try inline CSV first
-    let csvText = ($('#DATA_CSV')?.textContent || '').trim();
-    if(!csvText){
-      // fallback fetch
-      const res = await fetch(FALLBACK_SHEET_CSV_URL);
-      if(!res.ok) throw new Error('HTTP ' + res.status + ' fetching CSV');
-      csvText = await res.text();
-    }
-    const rows = parseCSV(csvText);
-    if(!rows.length) throw new Error('No rows in CSV');
-
-    const headers = rows[0];
-    const idx = buildHeaderIndex(headers);
-
-    if(hasQueryParam('debug')){
-      const dbg = $('#debug');
-      dbg.hidden = false;
-      dbg.textContent = [
-        'Recognized headers → column index',
-        JSON.stringify(idx, null, 2),
-        '',
-        'First data row (raw):',
-        JSON.stringify(rows[1]||[], null, 2),
-        '',
-        'Headers (original):',
-        JSON.stringify(headers, null, 2)
-      ].join('\n');
-    }
-
-    const RAW = rows.slice(1).filter(r => r.some(x => (x||'').trim() !== ''));
-    DATA = RAW.map(r => {
-      const obj = {};
-      obj.TITLE = idx.TITLE != null ? r[idx.TITLE] : '';
-      obj.SUBTITLE = idx.SUBTITLE != null ? r[idx.SUBTITLE] : '';
-      obj.COMPOSER = idx.COMPOSER != null ? r[idx.COMPOSER] : '';
-      obj.ARRANGER = idx.ARRANGER != null ? r[idx.ARRANGER] : '';
-      obj.GRADE = idx.GRADE != null ? (r[idx.GRADE]||'').toString().trim() : '';
-      obj.LENGTH = idx.LENGTH != null ? r[idx.LENGTH] : '';
-      obj.CATEGORY = idx.CATEGORY != null ? r[idx.CATEGORY] : '';
-      obj.VIEWSCORE = idx.VIEWSCORE != null ? r[idx.VIEWSCORE] : '';
-      obj.RECORDING = idx.RECORDING != null ? r[idx.RECORDING] : '';
-
-      obj._categories = splitMulti(obj.CATEGORY).map(s => s.replace(/^\s*-\s*/,'')).filter(Boolean);
-      obj._blob = [obj.TITLE, obj.SUBTITLE, obj.COMPOSER, obj.ARRANGER, obj.CATEGORY].join(' ').toLowerCase();
-      return obj;
+  for(const p of pills){
+    const el = document.createElement('button');
+    el.className = 'pill';
+    el.dataset.col = p.col;
+    el.dataset.val = p.label;
+    el.innerHTML = `<span class="muted small">${p.col}</span> ${escapeHTML(p.label)} <span class="tag">${p.count}</span>`;
+    el.addEventListener('click',()=>{
+      const key = `${p.col}::${p.label}`;
+      if(FILTERS.pills.has(key)) FILTERS.pills.delete(key); else FILTERS.pills.add(key);
+      el.classList.toggle('active');
+      PAGE=1; render();
     });
-
-    renderPills('COMPOSER', DATA.map(d => d.COMPOSER));
-    renderPills('ARRANGER', DATA.map(d => d.ARRANGER));
-    renderPills('CATEGORY', DATA.flatMap(d => d._categories));
-    renderPills('GRADE', DATA.map(d => d.GRADE));
-
-    applyFilters();
+    container.appendChild(el);
   }
+}
 
-  /* ===================== Pills ===================== */
-  function renderPills(field, values){
-    const container = $('#pills-' + field.toLowerCase());
-    const uniq = [...new Map(values.filter(Boolean).map(v => [v, (v||'')])).keys()].sort((a,b)=>a.localeCompare(b));
-    container.innerHTML = uniq.map(v => `<span class="pill" data-field="${field}" data-value="${escapeHTML(v)}">${escapeHTML(v)}</span>`).join('');
+function compileQuery(){
+  const q = FILTERS.q;
+  if(!q) return null;
+  if(FILTERS.regex){
+    try{ return new RegExp(q, 'i'); }catch(e){ return null; }
   }
+  const needles = FILTERS.exact? [q] : q.split(/\s+/).filter(Boolean);
+  return {needles, exact: FILTERS.exact};
+}
 
-  document.addEventListener('click', (e) => {
-    const pill = e.target.closest('.pill');
-    if(!pill) return;
-    const field = pill.dataset.field;
-    const value = pill.dataset.value;
-    const set = filters[field];
-    if(!(set instanceof Set)) return;
-    if(set.has(value)) set.delete(value); else set.add(value);
-    pill.classList.toggle('active');
-    applyFilters();
-  });
-
-  /* ===================== Toggles & Search ===================== */
-  $('#toggle-score').addEventListener('change', (e)=>{ filters.HAS_SCORE = e.target.checked; applyFilters(); });
-  $('#toggle-recording').addEventListener('change', (e)=>{ filters.HAS_RECORDING = e.target.checked; applyFilters(); });
-  $('#q').addEventListener('input', (e)=>{ filters.q = (e.target.value||'').toLowerCase(); applyFilters(); });
-  $('#clear-filters').addEventListener('click', ()=>{
-    filters.COMPOSER.clear(); filters.ARRANGER.clear(); filters.CATEGORY.clear(); filters.GRADE.clear();
-    filters.HAS_SCORE = false; filters.HAS_RECORDING = false; filters.q='';
-    $$('.pill.active').forEach(el => el.classList.remove('active'));
-    $('#toggle-score').checked = false; $('#toggle-recording').checked = false; $('#q').value = '';
-    applyFilters();
-  });
-
-  /* ===================== Filtering & Rendering ===================== */
-  function matchAll(d){
-    if(filters.q && !d._blob.includes(filters.q)) return false;
-
-    for(const field of ['COMPOSER','ARRANGER','GRADE']){
-      const set = filters[field];
-      if(set.size){
-        const val = (d[field]||'');
-        if(!set.has(val)) return false;
-      }
+function recordMatches(r, query){
+  // Pill filters first
+  if(FILTERS.pills.size){
+    for(const key of FILTERS.pills){
+      const [col,label] = key.split('::');
+      const colName = HMAP.map[col];
+      const raw = norm(r[colName]);
+      const parts = raw.split(/;|\||,/).map(s=>s.trim());
+      if(!parts.includes(label)) return false;
     }
-
-    if(filters.CATEGORY.size){
-      if(!d._categories.length) return false;
-      let ok=false;
-      for(const v of filters.CATEGORY){
-        if(d._categories.some(c => c.toLowerCase() === v.toLowerCase())) { ok=true; break; }
-      }
-      if(!ok) return false;
-    }
-
-    if(filters.HAS_SCORE && !d.VIEWSCORE) return false;
-    if(filters.HAS_RECORDING && !d.RECORDING) return false;
-
-    return true;
   }
+  if(!query) return true;
 
-  function cardHTML(d){
-    const cats = d._categories.map(c => `<span class="badge">${escapeHTML(c)}</span>`).join('');
-    const links = [
-      d.VIEWSCORE ? `<a href="${escapeHTML(d.VIEWSCORE)}" target="_blank" rel="noopener">View Score</a>` : '',
-      d.RECORDING ? `<a href="${escapeHTML(d.RECORDING)}" target="_blank" rel="noopener">Recording</a>` : ''
-    ].filter(Boolean).join('');
-    return `<article class="card">
-      <h3>${escapeHTML(d.TITLE||'Untitled')}</h3>
-      ${d.SUBTITLE ? `<div class="meta"><em>${escapeHTML(d.SUBTITLE)}</em></div>` : ''}
-      <div class="meta">Composer: ${escapeHTML(d.COMPOSER||'')}</div>
-      <div class="meta">Arranger: ${escapeHTML(d.ARRANGER||'')}</div>
-      <div class="meta">Grade: ${escapeHTML(d.GRADE||'')}</div>
-      <div class="meta">Length: ${escapeHTML(d.LENGTH||'')}</div>
-      ${cats ? `<div class="badges">${cats}</div>` : ''}
-      ${links ? `<div class="links">${links}</div>` : ''}
-    </article>`;
+  const scope = FILTERS.scope;
+  let hay='';
+  if(scope==='all') hay = r._all;
+  else if(scope==='core') hay = [r._t,r._s,r._c,r._a,r._cat,r._kw].join(' ');
+  else hay = [r._t, r._c, r._a, r._kw].join(' '); // auto
+
+  if(query instanceof RegExp){ return query.test(hay); }
+  // simple words includes
+  return query.needles.every(w=> hay.includes(w.toLowerCase()));
+}
+
+function titleOf(r){ return getCanon(r,HMAP,'title') || r[HMAP.rawHeaders[0]] || '(untitled)'; }
+function subtitleOf(r){ return getCanon(r,HMAP,'subtitle'); }
+function composerOf(r){ return getCanon(r,HMAP,'composer'); }
+function arrangerOf(r){ return getCanon(r,HMAP,'arranger'); }
+function yearOf(r){ return getCanon(r,HMAP,'year'); }
+
+function sortRecords(rows){
+  if(SORT==='none') return rows;
+  const collator = new Intl.Collator('en',{numeric:true,sensitivity:'base'});
+  const getKey = {
+    title: titleOf,
+    composer: composerOf,
+    year: yearOf
+  }[SORT] || titleOf;
+  return rows.slice().sort((a,b)=> collator.compare(norm(getKey(a)), norm(getKey(b))));
+}
+
+function render(){
+  const qEl = $('#q');
+  const query = compileQuery();
+  const rows = RECORDS.filter(r=>recordMatches(r, query));
+  const sorted = sortRecords(rows);
+
+  const total = sorted.length;
+  const pageSize = PAGE_SIZE;
+  const pages = Math.max(1, Math.ceil(total/pageSize));
+  PAGE = Math.min(Math.max(1,PAGE), pages);
+  const start = (PAGE-1)*pageSize;
+  const pageRows = sorted.slice(start, start+pageSize);
+
+  $('#counts').textContent = `${total} result${total!==1?'s':''}`;
+  $('#pageInfo').textContent = `Page ${PAGE} / ${pages}`;
+  $('#prevBtn').disabled = PAGE<=1;
+  $('#nextBtn').disabled = PAGE>=pages;
+
+  const grid = $('#grid'); grid.innerHTML='';
+  const frag = document.createDocumentFragment();
+  for(const r of pageRows){
+    const card = document.createElement('article');
+    card.className='card';
+    const t = escapeHTML(titleOf(r));
+    const st = escapeHTML(subtitleOf(r));
+    const c = escapeHTML(composerOf(r));
+    const a = escapeHTML(arrangerOf(r));
+    const y = escapeHTML(yearOf(r));
+
+    let meta = [];
+    if(c) meta.push(`<span>Composer: <b>${c}</b></span>`);
+    if(a) meta.push(`<span>Arr.: <b>${a}</b></span>`);
+    if(y) meta.push(`<span>Year: <b>${y}</b></span>`);
+
+    // show a couple of raw fields if present to help disambiguate large catalogues
+    const catCol = HMAP.map.category, instCol = HMAP.map.instrumentation;
+    const cat = catCol? escapeHTML(r[catCol]) : '';
+    const inst = instCol? escapeHTML(r[instCol]) : '';
+
+    card.innerHTML = `
+      <div class="title">${t}</div>
+      ${st?`<div class="subtitle muted">${st}</div>`:''}
+      <div class="kv">${meta.join(' ')}</div>
+      ${(cat||inst)?`<div class="kv" style="margin-top:8px">${cat?`<span>Category: ${cat}</span>`:''} ${inst?`<span>${inst}</span>`:''}</div>`:''}
+    `;
+    frag.appendChild(card);
   }
+  grid.appendChild(frag);
 
-  function applyFilters(){
-    const out = DATA.filter(matchAll).sort((a,b)=> (a.TITLE||'').localeCompare(b.TITLE||''));
-    $('#cards').innerHTML = out.map(cardHTML).join('');
-    $('#result-count').textContent = out.length.toString();
-
-    const af = [];
-    for(const f of ['COMPOSER','ARRANGER','CATEGORY','GRADE']){
-      if(filters[f].size){ af.push(`${f.toLowerCase()}: ${[...filters[f]].join(' + ')}`); }
-    }
-    if(filters.HAS_SCORE) af.push('has:score');
-    if(filters.HAS_RECORDING) af.push('has:recording');
-    if(filters.q) af.push(`q:“${escapeHTML(filters.q)}”`);
-    $('#active-filters').innerHTML = af.length ? ' · ' + af.join(' · ') : '';
+  // Active filters (chips)
+  const af = $('#activeFilters'); af.innerHTML='';
+  for(const key of FILTERS.pills){
+    const [col,label] = key.split('::');
+    const chip = document.createElement('button');
+    chip.className='pill active';
+    chip.innerHTML = `<span class="muted small">${col}</span> ${escapeHTML(label)} <span class="x">✕</span>`;
+    chip.addEventListener('click',()=>{ FILTERS.pills.delete(key); render(); });
+    af.appendChild(chip);
   }
+}
 
-  load().catch(err => {
-    $('#cards').innerHTML = `<p style="color:#f88">Error: ${escapeHTML(err.message)}</p>`;
-  });
-  </script>
+// ===== Events =====
+$('#q').addEventListener('input', e=>{ FILTERS.q = e.target.value.trim(); PAGE=1; render(); });
+$('#regexToggle').addEventListener('change', e=>{ FILTERS.regex = e.target.checked; PAGE=1; render(); });
+$('#exactToggle').addEventListener('change', e=>{ FILTERS.exact = e.target.checked; PAGE=1; render(); });
+$('#fieldScope').addEventListener('change', e=>{ FILTERS.scope = e.target.value; PAGE=1; render(); });
+$('#pageSize').addEventListener('change', e=>{ PAGE_SIZE = parseInt(e.target.value,10)||96; PAGE=1; render(); });
+$('#sortBy').addEventListener('change', e=>{ SORT = e.target.value; PAGE=1; render(); });
+$('#prevBtn').addEventListener('click',()=>{ PAGE=Math.max(1,PAGE-1); render(); });
+$('#nextBtn').addEventListener('click',()=>{ PAGE=PAGE+1; render(); });
+$('#refreshBtn').addEventListener('click',()=>{ fetchSheet().catch(console.error); });
+$('#copyLinkBtn').addEventListener('click',()=>{
+  const url = new URL(location.href);
+  // persist only query text and selected pills (compact)
+  url.searchParams.set('q', FILTERS.q||'');
+  const pills = Array.from(FILTERS.pills).join('||');
+  if(pills) url.searchParams.set('p', encodeURIComponent(pills)); else url.searchParams.delete('p');
+  url.searchParams.set('scope', FILTERS.scope);
+  navigator.clipboard.writeText(url.toString());
+  $('#copyLinkBtn').textContent='Copied'; setTimeout(()=>$('#copyLinkBtn').textContent='Copy link',1000);
+});
+
+// Restore from URL params
+(function restoreFromURL(){
+  const params = new URL(location.href).searchParams;
+  const q = params.get('q'); if(q){ FILTERS.q = q; $('#q').value=q; }
+  const scope = params.get('scope'); if(scope){ FILTERS.scope=scope; $('#fieldScope').value=scope; }
+  const p = params.get('p');
+  if(p){ p.split('||').forEach(x=> x && FILTERS.pills.add(decodeURIComponent(x))); }
+})();
+
+fetchSheet().catch(err=>{
+  console.error(err);
+  $('#diag').innerHTML += `<br><span style="color:#ff8">Error: ${escapeHTML(err.message||err)}</span>`;
+});
+</script>
 </body>
 </html>
